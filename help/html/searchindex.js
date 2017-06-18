@@ -1,0 +1,1 @@
+Search.setIndex({filenames:["index"],titleterms:{pacsaf:0,indic:0,welcom:0,document:0,tabl:0},objnames:{},titles:["Welcome to PacSafe&#8217;s documentation!"],envversion:43,objtypes:{},objects:{},terms:{search:0,modul:0,index:0,content:0,page:0}})
