@@ -77,12 +77,6 @@ class PacSafe:
             'i18n',
             'PacSafe_{}.qm'.format(locale))
         
-        #safe.gui.widgets.dock.Dock.testMarco = injectionTest #lambda: QMessageBox.about(self.dlg, "Test", "Success")
-
-        #QMessageBox.about(self.dlg, "Test", "Success")
-
-
-
         splash_pix = QPixmap('splash.png')
         splash = QSplashScreen(splash_pix, Qt.WindowStaysOnTopHint)
         splash.setMask(splash_pix.mask())
@@ -91,10 +85,6 @@ class PacSafe:
         splash.show()
         QApplication.processEvents()
         QCoreApplication.instance().processEvents()
-
-        #QApplication.processEvents()
-        #self.processEvents()
-        # Simulate something that takes time
 
         QApplication.processEvents()
 
@@ -132,30 +122,43 @@ class PacSafe:
         btn = self.dlg.btn
         btn.clicked.connect(self.openProject)
         
-        #btnTest = self.dlg.btnTest
-        #btnTest.clicked.connect(self.openTest)
-        
-        #safe.gui.widgets.dock.Dock.dock_accept_begin_hook = my_accept_begin_hook
+        # Load projects dynamically:
+        self.path = os.getcwd() + "/data/"
 
-        #load projects dynamically
-        #self.dlg.listWidget
-        path = os.getcwd() + "/data/to/"
-        #item = QListWidgetItem("Sachindra Singh")
-        #self.dlg.listWidget.addItem(item)
+        # Set a globally-accessible list of countries for which we have
+        # projects & data available. The two-letter abbreviation must match 
+        # the name of the sub-directory in the project/data folders.
+        self.countryList = {"Fiji":"FJ", 
+                            "Tonga":"TO"}
 
-        for f in os.listdir(path):
+        for c in sorted(self.countryList.keys()):
+            self.dlg.countryListWidget.addItem(c)
+
+        cl = self.dlg.countryListWidget
+        self.updateProjectList(0)
+        cl.currentIndexChanged.connect(self.updateProjectList)
+
+
+        btnRemote = self.dlg.btnRemote
+        btnRemote.clicked.connect(self.openRemote)
+
+    def updateProjectList(self, i):
+        """
+        Update the list of locally-available projects based on the selected
+        country.
+        """
+
+        cl = self.dlg.countryListWidget
+        self.cv = cl.currentText()
+        prjPath = os.path.join(self.path, self.countryList[self.cv])
+        self.dlg.listWidget.clear()
+        for f in os.listdir(prjPath):
             if f.endswith(".qgs"):
                 f = f.replace(".qgs", "")
                 f = f.replace("_", " ")
                 f = f.title()
                 item = QListWidgetItem(f)
                 self.dlg.listWidget.addItem(item)
-
-
-        btnRemote = self.dlg.btnRemote
-        btnRemote.clicked.connect(self.openRemote)
-
-
 
         
     def openRemote(self):
@@ -164,14 +167,15 @@ class PacSafe:
             local = []
             remote =[]
             #build list of remote index
-            response = urllib2.urlopen("https://raw.githubusercontent.com/sopac/pacsafe-projects/master/to/index.txt")
+            url = "https://raw.githubusercontent.com/sopac/pacsafe-projects/master/{0}/index.txt".format(self.countryList[self.cv].lower())
+            response = urllib2.urlopen(url) 
             for l in response:
                 if l.strip().endswith(".qgs"):
                     #print l.strip()
                     remote.append(l.strip())
 
             #build local list
-            path = os.getcwd() + "/data/to/"
+            path = os.path.join(os.getcwd(), "/data/", self.countryList[self.cv].lower())
             for f in os.listdir(path):
                 if f.endswith(".qgs"):
                     local.append(f.strip())
@@ -185,15 +189,13 @@ class PacSafe:
                 if f not in local:
                     getlist.append(f)
 
-            #print len(getlist)
-            #print getlist
-            msg = "There are no new remote projects available for Tonga."
+            msg = "There are no new remote projects available for {0}.".format(self.cv)
             sync = False
             
             if len(getlist) > 0:
                 sync = True
                 diff = len(getlist)            
-                msg = "There are " + str(diff) + " new project(s) available for Tonga.\r\nClick Ok To Synchronise."
+                msg = "There are " + str(diff) + " new project(s) available for {0}.\r\nClick Ok To Synchronise.".format(self.cv)
 
             QMessageBox.about(self.dlg, "Remote Projects", msg)
 
@@ -201,9 +203,7 @@ class PacSafe:
                 #sync/download new layers                    
                 for n in getlist:
                     print n
-                    #tf = urllib2.URLopener()
-                    #tf.retrieve("https://raw.githubusercontent.com/sopac/pacsafe-projects/master/to/" + n, path + n)
-                    tf = urllib2.urlopen("https://raw.githubusercontent.com/sopac/pacsafe-projects/master/to/" + n)
+                    tf = urllib2.urlopen("https://raw.githubusercontent.com/sopac/pacsafe-projects/master/{0}".format(self.countryList[self.cv]) + n)
                     with open(path + n, "wb") as lf:
                         lf.write(tf.read())
 
@@ -216,7 +216,9 @@ class PacSafe:
                         f = f.title()
                         item = QListWidgetItem(f)
                         self.dlg.listWidget.addItem(item)
-                QMessageBox.about(self.dlg, "Remote Projects", "Remote Projects Synchronised.\r\nPlease Reopen PacSAFE Project Opener.")
+                QMessageBox.about(self.dlg, "Remote Projects", 
+                                  ("Remote Projects Synchronised.\r\n"
+                                   "Please Reopen PacSAFE Project Opener.")
                 self.dlg.close()
 
         except:
@@ -232,22 +234,12 @@ class PacSafe:
             return
 
         pn = self.dlg.listWidget.currentItem().text()
-        #QMessageBox.about(self.dlg, "PacSafe", str(pn))
-        # if (pn == 0): proj = "nadifloodbuilding.qgs"
-        # if (pn == 1): proj = "nadifloodroads.qgs"
-        # if (pn == 2): proj = "nadifloodpopulation.qgs"
-        # if (pn == 3): proj = "apiafloodbuildings.qgs"
-        # if (pn == 4): proj = "apiafloodroads.qgs"
-        # if (pn == 5): proj = "apiafloodpopulation.qgs"
-        #
-        #path = os.getcwd() + "/data/" + proj
-        #path = "/home/sachin/Projects/pacsafe/data/" + proj
+
         proj = pn.replace(" ", "_").lower() + ".qgs"
-        path = os.getcwd() + "/data/to/" + proj
-        #QMessageBox.information(self.dlg, "Debug", os.getcwd())
+        path = os.path.join(os.getcwd(), "data", self.countryList[self.cv], proj)
+
         self.iface.addProject(path)
         self.dlg.hide()
-        #QtGui.QMessageBox.about(self, "sdsadas", "dasdas")
     
 
     # noinspection PyMethodMayBeStatic

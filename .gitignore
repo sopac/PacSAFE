@@ -1,0 +1,12 @@
+# Byte-compiled/optimized/DLL files
+__pychache__/
+*.py[cod]
+
+# C extensions:
+*.o
+*.so
+*.dylib
+
+# Miscellaneous:
+*.py~
+*.ini
