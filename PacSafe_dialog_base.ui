@@ -122,7 +122,7 @@
     <string>Load</string>
    </property>
    <property name="icon">
-    <iconset resource="resources.qrc">
+    <iconset>
      <normaloff>:/plugins/PacSafe/icon.png</normaloff>:/plugins/PacSafe/icon.png</iconset>
    </property>
    <property name="default">
@@ -152,7 +152,7 @@
    <property name="geometry">
     <rect>
      <x>30</x>
-     <y>470</y>
+     <y>520</y>
      <width>141</width>
      <height>28</height>
     </rect>
@@ -166,16 +166,47 @@
     <string>Remote Projects</string>
    </property>
    <property name="icon">
-    <iconset resource="resources.qrc">
+    <iconset>
      <normaloff>:/plugins/PacSafe/remote.png</normaloff>:/plugins/PacSafe/remote.png</iconset>
    </property>
   </widget>
-</widget>
-<!--
- <resources>
-  <include location="resources.qrc"/>
-  </resources>
--->
+  <widget class="QGroupBox" name="groupBox_2">
+   <property name="geometry">
+    <rect>
+     <x>10</x>
+     <y>150</y>
+     <width>451</width>
+     <height>41</height>
+    </rect>
+   </property>
+   <property name="title">
+    <string>Select country</string>
+   </property>
+   <widget class="QComboBox" name="countryListWidget">
+    <property name="geometry">
+     <rect>
+      <x>120</x>
+      <y>10</y>
+      <width>181</width>
+      <height>22</height>
+     </rect>
+    </property>
+    <property name="insertPolicy">
+     <enum>QComboBox::InsertAlphabetically</enum>
+    </property>
+   </widget>
+  </widget>
+  <zorder>groupBox_2</zorder>
+  <zorder>button_box</zorder>
+  <zorder>groupBox</zorder>
+  <zorder>line</zorder>
+  <zorder>label_2</zorder>
+  <zorder>label_3</zorder>
+  <zorder>btn</zorder>
+  <zorder>label</zorder>
+  <zorder>btnRemote</zorder>
+ </widget>
+ <resources/>
  <connections>
   <connection>
    <sender>button_box</sender>
