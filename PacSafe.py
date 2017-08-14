@@ -218,7 +218,7 @@ class PacSafe:
                         self.dlg.listWidget.addItem(item)
                 QMessageBox.about(self.dlg, "Remote Projects", 
                                   ("Remote Projects Synchronised.\r\n"
-                                   "Please Reopen PacSAFE Project Opener.")
+                                   "Please Reopen PacSAFE Project Opener."))
                 self.dlg.close()
 
         except:
