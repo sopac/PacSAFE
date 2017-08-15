@@ -40,17 +40,6 @@ import os
 #import safe.gui.widgets.dock
 import time
 
-def injectionTest(dock):
-        #time.sleep(10)
-        print dock.inasafe_version
-        print "PacSafe Init ***************"
-        
-        #QMessageBox.about(self.dlg, "Test", "Success")
-
-def my_accept_begin_hook(dock):
-    #print dock.inasafe_version
-    print "Marco's Hook - my new accept_begin_hook()"
-
 
 class PacSafe:
     """QGIS Plugin Implementation."""
@@ -80,27 +69,14 @@ class PacSafe:
         splash_pix = QPixmap('splash.png')
         splash = QSplashScreen(splash_pix, Qt.WindowStaysOnTopHint)
         splash.setMask(splash_pix.mask())
-        QApplication.processEvents()
-        QCoreApplication.instance().processEvents()
         splash.show()
         QApplication.processEvents()
-        QCoreApplication.instance().processEvents()
 
-        QApplication.processEvents()
+        start =time.time()
+        while time.time() - start <= 1:
+            time.sleep(0.001)
+            QApplication.processEvents()
 
-        msg = QMessageBox()
-        msg.setIcon(QMessageBox.Information)
-        msg.setText("Loading PacSafe...")
-        msg.setInformativeText("Tonga Profile")
-        msg.setWindowTitle("PacSafe")
-        msg.setStandardButtons(QMessageBox.Ok) # | QMessageBox.Cancel)
-        # retval = msg.exec_()
-        QApplication.processEvents()
-        QCoreApplication.instance().processEvents()
-        time.sleep(5)
-        QApplication.processEvents()
-        QCoreApplication.instance().processEvents()
-        #QApplication.processEvents()
 
         if os.path.exists(locale_path):
             self.translator = QTranslator()
@@ -118,9 +94,7 @@ class PacSafe:
         # TODO: We are going to let the user set this up in a future iteration
         self.toolbar = self.iface.addToolBar(u'PacSafe')
         self.toolbar.setObjectName(u'PacSafe')
-        
-        btn = self.dlg.btn
-        btn.clicked.connect(self.openProject)
+
         
         # Load projects dynamically:
         self.path = os.getcwd() + "/data/"
@@ -128,8 +102,7 @@ class PacSafe:
         # Set a globally-accessible list of countries for which we have
         # projects & data available. The two-letter abbreviation must match 
         # the name of the sub-directory in the project/data folders.
-        self.countryList = {"Fiji":"FJ", 
-                            "Tonga":"TO"}
+        self.countryList = {"Fiji":"FJ", "Tonga":"TO"}
 
         for c in sorted(self.countryList.keys()):
             self.dlg.countryListWidget.addItem(c)
@@ -138,6 +111,9 @@ class PacSafe:
         self.updateProjectList(0)
         cl.currentIndexChanged.connect(self.updateProjectList)
 
+        #event signals/slots
+        btn = self.dlg.btn
+        btn.clicked.connect(self.openProject)
 
         btnRemote = self.dlg.btnRemote
         btnRemote.clicked.connect(self.openRemote)
@@ -223,14 +199,12 @@ class PacSafe:
 
         except:
             e = sys.exc_info()[0]
-            #QMessageBox.about(self.dlg, "Error", "Error Occurred, Ensure Internet Connectivity.\r\n"  + str(e))
             QMessageBox.critical(None, 'Error!', "Error Occurred, Ensure Internet Connectivity.\r\n"  + str(e), QMessageBox.Abort)
 
     def openProject(self):
         lw = self.dlg.listWidget
-        #QMessageBox.about(self.dlg, "sds", lw.currentItem().text()) 
-        if lw.currentItem().text().startswith("---"):
-            QMessageBox.about(self.dlg, "Sorry", "Remote Repository Is Not Available!")
+        if len(lw.selectedItems()) == 0:
+            QMessageBox.about(self.dlg, "Sorry", "No scenario/project selected!")
             return
 
         pn = self.dlg.listWidget.currentItem().text()

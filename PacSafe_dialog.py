@@ -27,19 +27,13 @@ from PyQt4.QtGui import *
 from PyQt4 import QtGui, uic
 from PyQt4.QtCore import pyqtSlot,SIGNAL,SLOT
 
-#import resources
-#import resources_rc
-
 
 FORM_CLASS, _ = uic.loadUiType(os.path.join(
     os.path.dirname(__file__), 'PacSafe_dialog_base.ui'))
 
 
 class PacSafeDialog(QtGui.QDialog, FORM_CLASS):
-    
-   
-    
-    
+
     def __init__(self, parent=None):
         """Constructor."""
         super(PacSafeDialog, self).__init__(parent)
@@ -50,7 +44,7 @@ class PacSafeDialog(QtGui.QDialog, FORM_CLASS):
         # #widgets-and-dialogs-with-auto-connect
         self.setupUi(self)
         
-        #QtGui.QMessageBox.about(self, "sdsadas", "dasdas")
+
        
         
         
