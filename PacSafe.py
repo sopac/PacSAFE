@@ -28,7 +28,7 @@ import resources
 from PyQt4.QtCore import *
 from PyQt4.QtGui import *
 import os, sys
-import urllib2
+import urllib2, webbrowser
 
 
 # Initialize Qt resources from file resources.py
@@ -117,6 +117,16 @@ class PacSafe:
 
         btnRemote = self.dlg.btnRemote
         btnRemote.clicked.connect(self.openRemote)
+
+        btnHelp = self.dlg.btnHelp
+        btnHelp.clicked.connect(self.help)
+
+        btnClose = self.dlg.btnClose
+        btnClose.clicked.connect(self.dlg.close)
+
+    def help(self):
+        webbrowser.open_new_tab('http://pacsafe-doc.readthedocs.io/en/latest/')
+        self.dlg.close()
 
     def updateProjectList(self, i):
         """
