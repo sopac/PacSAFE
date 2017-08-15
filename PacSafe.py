@@ -164,7 +164,7 @@ class PacSafe:
                     remote.append(l.strip())
 
             #build local list
-            path = os.path.join(os.getcwd(), "data/", self.countryList[self.cv].upper())
+            path = os.path.join(os.getcwd() + "/data/", self.countryList[self.cv].upper())
             for f in os.listdir(path):
                 if f.endswith(".qgs"):
                     local.append(f.strip())
@@ -196,7 +196,7 @@ class PacSafe:
                     request = urllib2.Request(url, headers={'User-Agent': 'Mozilla/5.0'})
                     tf = urllib2.urlopen(request, timeout=100)
                     #tf = urllib2.urlopen()
-                    with open(path + n, "wb") as lf:
+                    with open(path + "/" + n, "wb") as lf:
                         lf.write(tf.read())
 
                 #refresh project listing
@@ -215,7 +215,7 @@ class PacSafe:
 
         except:
             e = sys.exc_info()[0]
-            #e = traceback.format_exc()
+            e = traceback.format_exc()
             QMessageBox.critical(None, 'Error!', "Error Occurred, Ensure Internet Connectivity.\r\n"  + str(e), QMessageBox.Abort)
 
     def openProject(self):
