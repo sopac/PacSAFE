@@ -28,7 +28,7 @@ import resources
 from PyQt4.QtCore import *
 from PyQt4.QtGui import *
 import os, sys
-import urllib2, webbrowser
+import urllib2, webbrowser, traceback
 
 
 # Initialize Qt resources from file resources.py
@@ -154,14 +154,17 @@ class PacSafe:
             remote =[]
             #build list of remote index
             url = "https://raw.githubusercontent.com/sopac/pacsafe-projects/master/{0}/index.txt".format(self.countryList[self.cv].lower())
-            response = urllib2.urlopen(url) 
+
+            request = urllib2.Request(url, headers={'User-Agent': 'Mozilla/5.0'})
+            response = urllib2.urlopen(request, timeout=100)
+            #response = urllib2.urlopen(url)
             for l in response:
                 if l.strip().endswith(".qgs"):
                     #print l.strip()
                     remote.append(l.strip())
 
             #build local list
-            path = os.path.join(os.getcwd(), "/data/", self.countryList[self.cv].lower())
+            path = os.path.join(os.getcwd(), "data/", self.countryList[self.cv].upper())
             for f in os.listdir(path):
                 if f.endswith(".qgs"):
                     local.append(f.strip())
@@ -189,7 +192,10 @@ class PacSafe:
                 #sync/download new layers                    
                 for n in getlist:
                     print n
-                    tf = urllib2.urlopen("https://raw.githubusercontent.com/sopac/pacsafe-projects/master/{0}".format(self.countryList[self.cv]) + n)
+                    p_url = "https://raw.githubusercontent.com/sopac/pacsafe-projects/master/{0}".format(self.countryList[self.cv]) + n
+                    request = urllib2.Request(url, headers={'User-Agent': 'Mozilla/5.0'})
+                    tf = urllib2.urlopen(request, timeout=100)
+                    #tf = urllib2.urlopen()
                     with open(path + n, "wb") as lf:
                         lf.write(tf.read())
 
@@ -209,6 +215,7 @@ class PacSafe:
 
         except:
             e = sys.exc_info()[0]
+            #e = traceback.format_exc()
             QMessageBox.critical(None, 'Error!', "Error Occurred, Ensure Internet Connectivity.\r\n"  + str(e), QMessageBox.Abort)
 
     def openProject(self):
