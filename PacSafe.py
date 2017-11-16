@@ -39,7 +39,8 @@ import os.path
 import os
 #import safe.gui.widgets.dock
 import time
-
+import logging
+LOGGER = logging.getLogger('PacSAFE')
 
 class PacSafe:
     """QGIS Plugin Implementation."""
@@ -95,9 +96,12 @@ class PacSafe:
         self.toolbar = self.iface.addToolBar(u'PacSafe')
         self.toolbar.setObjectName(u'PacSafe')
 
-        
         # Load projects dynamically:
-        self.path = os.getcwd() + "/data/"
+        if os.path.exists(os.path.join(os.getcwd(), 'data')):
+            self.dataPath = os.path.join(os.getcwd(), 'data')
+            LOGGER.info("Setting data path to {0}".format(self.dataPath))
+        else:
+            self.dataPath = None
 
         # Set a globally-accessible list of countries for which we have
         # projects & data available. The two-letter abbreviation must match 
@@ -108,12 +112,15 @@ class PacSafe:
             self.dlg.countryListWidget.addItem(c)
 
         cl = self.dlg.countryListWidget
-        self.updateProjectList(0)
+        self.updateProjectList(1)
         cl.currentIndexChanged.connect(self.updateProjectList)
 
         #event signals/slots
-        btn = self.dlg.btn
-        btn.clicked.connect(self.openProject)
+        btnDataFolder = self.dlg.btnDataFolder
+        btnDataFolder.clicked.connect(self.selectDataFolder)
+
+        btnProject = self.dlg.btnProject
+        btnProject.clicked.connect(self.openProject)
 
         btnRemote = self.dlg.btnRemote
         btnRemote.clicked.connect(self.openRemote)
@@ -123,6 +130,21 @@ class PacSafe:
 
         btnClose = self.dlg.btnClose
         btnClose.clicked.connect(self.dlg.close)
+
+    def selectDataFolder(self):
+        """
+        Set the data directory, where the projects and data are maintained
+        """
+        self.dlg.dataPath.setText(QFileDialog.getExistingDirectory())
+        if self.dlg.dataPath.text():
+            self.dataPath = self.dlg.dataPath.text()
+            cl = self.dlg.countryListWidget
+            self.updateProjectList(0)
+            cl.currentIndexChanged.connect(self.updateProjectList)
+        else:
+             self.dlg.dataPath.setText(self.dataPath)
+
+
 
     def help(self):
         webbrowser.open_new_tab('http://pacsafe-doc.readthedocs.io/en/latest/')
@@ -136,16 +158,21 @@ class PacSafe:
 
         cl = self.dlg.countryListWidget
         self.cv = cl.currentText()
-        prjPath = os.path.join(self.path, self.countryList[self.cv])
-        self.dlg.listWidget.clear()
-        for f in os.listdir(prjPath):
-            if f.endswith(".qgs"):
-                f = f.replace(".qgs", "")
-                f = f.replace("_", " ")
-                f = f.title()
-                item = QListWidgetItem(f)
-                self.dlg.listWidget.addItem(item)
-
+        if self.dataPath is not None:
+            prjPath = os.path.join(self.dataPath, self.countryList[self.cv])
+            self.dlg.listWidget.clear()
+            if os.path.exists(prjPath):
+                for f in os.listdir(prjPath):
+                    if f.endswith(".qgs"):
+                        f = f.replace(".qgs", "")
+                        f = f.replace("_", " ")
+                        f = f.title()
+                        item = QListWidgetItem(f)
+                        self.dlg.listWidget.addItem(item)
+            else:
+                msg = ("Selected data path does not have any country sub-directories. "
+                       "Please select the directory where the country projects are saved.")
+                QMessageBox.about(self.dlg, "PacSAFE project folders missing", msg)
         
     def openRemote(self):
         try:
@@ -164,7 +191,7 @@ class PacSafe:
                     remote.append(l.strip())
 
             #build local list
-            path = os.path.join(os.getcwd() + "/data/", self.countryList[self.cv].upper())
+            path = os.path.join(self.dataPath, self.countryList[self.cv].upper())
             for f in os.listdir(path):
                 if f.endswith(".qgs"):
                     local.append(f.strip())
@@ -227,7 +254,7 @@ class PacSafe:
         pn = self.dlg.listWidget.currentItem().text()
 
         proj = pn.replace(" ", "_").lower() + ".qgs"
-        path = os.path.join(os.getcwd(), "data", self.countryList[self.cv], proj)
+        path = os.path.join(self.dataPath, self.countryList[self.cv], proj)
 
         self.iface.addProject(path)
         self.dlg.hide()
