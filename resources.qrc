@@ -1,6 +1,9 @@
 <RCC>
-  <qresource prefix="/plugins/PacSafe">
-    <file>remote.png</file>
+  <qresource prefix="/">
+    <file>close.png</file>
+    <file>help.png</file>
     <file>icon.png</file>
+    <file>remote.png</file>
+    <file>logo.png</file>
   </qresource>
 </RCC>
